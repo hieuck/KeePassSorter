@@ -95,32 +95,99 @@ namespace KeePassSorter
             int result;
             if (opts.Criteria == SortCriteria.CreatedTime || opts.Criteria == SortCriteria.ModifiedTime)
             {
-                // So sánh thời gian
+                // So sánh thời gian (luôn so sánh chuẩn theo chuỗi thời gian)
                 result = string.Compare(sa, sb, StringComparison.Ordinal);
-            }
-            else if (opts.CaseSensitive)
-            {
-                result = string.Compare(sa, sb, StringComparison.Ordinal);
-            }
-            else if (opts.UseVietnamese)
-            {
-                try
-                {
-                    CultureInfo ci = new CultureInfo("vi-VN");
-                    result = string.Compare(sa, sb, true, ci);
-                }
-                catch
-                {
-                    result = string.Compare(sa, sb, StringComparison.OrdinalIgnoreCase);
-                }
             }
             else
             {
-                result = string.Compare(sa, sb, StringComparison.OrdinalIgnoreCase);
+                // So sánh tự nhiên (Natural Sort Order) cho các trường văn bản
+                result = CompareNatural(sa, sb, opts);
             }
 
             if (!opts.Ascending) result = -result;
             return result;
+        }
+
+        /// <summary>
+        /// Thuật toán so sánh tự nhiên (Natural Sort Order) giống Windows Explorer.
+        /// Giúp so sánh chuỗi chứa số chính xác (ví dụ: a1b < a2b < a10b).
+        /// </summary>
+        private int CompareNatural(string x, string y, SortingOptions opts)
+        {
+            if (x == null && y == null) return 0;
+            if (x == null) return -1;
+            if (y == null) return 1;
+
+            int ix = 0;
+            int iy = 0;
+
+            while (ix < x.Length && iy < y.Length)
+            {
+                if (char.IsDigit(x[ix]) && char.IsDigit(y[iy]))
+                {
+                    // Đọc chuỗi số liên tục từ x
+                    int sx = ix;
+                    while (ix < x.Length && char.IsDigit(x[ix])) { ix++; }
+                    string numX = x.Substring(sx, ix - sx);
+
+                    // Đọc chuỗi số liên tục từ y
+                    int sy = iy;
+                    while (iy < y.Length && char.IsDigit(y[iy])) { iy++; }
+                    string numY = y.Substring(sy, iy - sy);
+
+                    // Loại bỏ các chữ số 0 ở đầu để so sánh giá trị số học
+                    string cleanX = numX.TrimStart('0');
+                    string cleanY = numY.TrimStart('0');
+
+                    // So sánh độ dài trước (chuỗi số dài hơn sẽ lớn hơn)
+                    if (cleanX.Length != cleanY.Length)
+                    {
+                        return cleanX.Length.CompareTo(cleanY.Length);
+                    }
+
+                    // So sánh chuỗi số có cùng độ dài theo thứ tự ký tự
+                    int cmpNum = string.Compare(cleanX, cleanY, StringComparison.Ordinal);
+                    if (cmpNum != 0) return cmpNum;
+
+                    // Nếu giá trị số bằng nhau, số nào có độ dài thực tế lớn hơn (do nhiều số 0 ở đầu) sẽ đứng trước
+                    int cmpLen = numX.Length.CompareTo(numY.Length);
+                    if (cmpLen != 0) return cmpLen;
+                }
+                else
+                {
+                    // So sánh các ký tự không phải số theo cấu hình
+                    string cx = x[ix].ToString();
+                    string cy = y[iy].ToString();
+                    int cmpChar;
+
+                    if (opts.CaseSensitive)
+                    {
+                        cmpChar = string.Compare(cx, cy, StringComparison.Ordinal);
+                    }
+                    else if (opts.UseVietnamese)
+                    {
+                        try
+                        {
+                            CultureInfo ci = new CultureInfo("vi-VN");
+                            cmpChar = string.Compare(cx, cy, true, ci);
+                        }
+                        catch
+                        {
+                            cmpChar = string.Compare(cx, cy, StringComparison.OrdinalIgnoreCase);
+                        }
+                    }
+                    else
+                    {
+                        cmpChar = string.Compare(cx, cy, StringComparison.OrdinalIgnoreCase);
+                    }
+
+                    if (cmpChar != 0) return cmpChar;
+                    ix++;
+                    iy++;
+                }
+            }
+
+            return x.Length.CompareTo(y.Length);
         }
 
         private string GetValue(PwEntry entry, SortCriteria criteria)

@@ -25,6 +25,12 @@ namespace KeePassSorter
                 tsmi.DropDownItems.Add(tsmiSort);
                 return tsmi;
             }
+            else if (t == PluginMenuType.Group)
+            {
+                ToolStripMenuItem tsmiSort = new ToolStripMenuItem("Sort Entries inside Group...");
+                tsmiSort.Click += new EventHandler(OnSort);
+                return tsmiSort;
+            }
             return null;
         }
 

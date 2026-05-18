@@ -1,0 +1,72 @@
+name: Build KeePass Sorter Plugin
+
+on:
+  push:
+    branches: [ "*" ]
+  pull_request:
+    branches: [ "*" ]
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v4
+
+    - name: Set up MSBuild
+      uses: microsoft/setup-msbuild@v2
+
+    - name: Download and Setup KeePass
+      shell: powershell
+      run: |
+        # Xác định thư mục cha của workspace để đặt KeePass.exe khớp với HintPath (..\..\KeePass.exe)
+        $grandparent = Resolve-Path "$env:GITHUB_WORKSPACE\..\.."
+        Write-Host "Downloading KeePass to: $grandparent"
+        
+        # Tải KeePass Portable từ link chính thức của SourceForge
+        curl.exe -L -o "$grandparent\KeePass.zip" "https://sourceforge.net/projects/keepass/files/KeePass%202.x/2.57/KeePass-2.57.zip/download"
+        
+        # Giải nén
+        Expand-Archive -Path "$grandparent\KeePass.zip" -DestinationPath $grandparent -Force
+        
+        # Xác nhận KeePass.exe đã nằm đúng vị trí để MSBuild tham chiếu
+        if (Test-Path "$grandparent\KeePass.exe") {
+            Write-Host "KeePass.exe successfully extracted to: $grandparent\KeePass.exe"
+        } else {
+            throw "Failed to extract KeePass.exe!"
+        }
+
+    - name: Build DLL Plugin
+      run: msbuild src/KeePassSorter.csproj /p:Configuration=Release /p:Platform="AnyCPU"
+
+    - name: Create PLGX Package
+      shell: powershell
+      run: |
+        $grandparent = Resolve-Path "$env:GITHUB_WORKSPACE\..\.."
+        $keepassExe = "$grandparent\KeePass.exe"
+        
+        # Đóng gói thư mục src/ thành file .plgx bằng KeePass.exe
+        Write-Host "Packing PLGX using KeePass..."
+        & $keepassExe --plgx-create "$env:GITHUB_WORKSPACE\src"
+        
+        # Chờ 5 giây để quá trình đóng gói hoàn tất
+        Start-Sleep -Seconds 5
+        
+        # KeePass tạo ra file src.plgx cùng cấp với thư mục src (tức là trong workspace root)
+        # Chúng ta chỉ cần đổi tên nó thành KeePassSorter.plgx
+        $compiledPlgx = "$env:GITHUB_WORKSPACE\src.plgx"
+        if (Test-Path $compiledPlgx) {
+            Move-Item $compiledPlgx "$env:GITHUB_WORKSPACE\KeePassSorter.plgx" -Force
+            Write-Host "PLGX created successfully at $env:GITHUB_WORKSPACE\KeePassSorter.plgx!"
+        } else {
+            throw "Failed to create PLGX package!"
+        }
+
+    - name: Upload DLL and PLGX Artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: KeePassSorter-Plugin
+        path: |
+          bin/Release/KeePassSorter.dll
+          KeePassSorter.plgx

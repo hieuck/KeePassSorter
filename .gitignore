@@ -1,0 +1,17 @@
+# Build outputs
+bin/
+obj/
+*.plgx
+*.dll
+*.zip
+
+# Visual Studio / Rider files
+.vs/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# Mono / OS files
+.DS_Store
+Thumbs.db

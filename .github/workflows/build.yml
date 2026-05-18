@@ -20,17 +20,17 @@ jobs:
     - name: Download and Setup KeePass
       shell: powershell
       run: |
-        # Xác định thư mục cha của workspace để đặt KeePass.exe khớp với HintPath (..\..\KeePass.exe)
-        $grandparent = Resolve-Path "$env:GITHUB_WORKSPACE\..\.."
+        # Xác định thư mục cha của workspace bằng GetFullPath để có chuỗi đường dẫn sạch không chứa tiền tố PowerShell
+        $grandparent = [System.IO.Path]::GetFullPath("$env:GITHUB_WORKSPACE\..\..")
         Write-Host "Downloading KeePass to: $grandparent"
         
-        # Tải KeePass Portable từ link chính thức của SourceForge
+        # Tải KeePass Portable từ link chính thức của SourceForge (sử dụng curl -L để tự động chuyển hướng)
         curl.exe -L -o "$grandparent\KeePass.zip" "https://sourceforge.net/projects/keepass/files/KeePass%202.x/2.57/KeePass-2.57.zip/download"
         
         # Giải nén
         Expand-Archive -Path "$grandparent\KeePass.zip" -DestinationPath $grandparent -Force
         
-        # Xác nhận KeePass.exe đã nằm đúng vị trí để MSBuild tham chiếu
+        # Xác nhận KeePass.exe đã nằm đúng vị trí
         if (Test-Path "$grandparent\KeePass.exe") {
             Write-Host "KeePass.exe successfully extracted to: $grandparent\KeePass.exe"
         } else {
@@ -38,12 +38,16 @@ jobs:
         }
 
     - name: Build DLL Plugin
-      run: msbuild src/KeePassSorter.csproj /p:Configuration=Release /p:Platform="AnyCPU"
+      shell: powershell
+      run: |
+        $grandparent = [System.IO.Path]::GetFullPath("$env:GITHUB_WORKSPACE\..\..")
+        # Ghi đè ReferencePath để đảm bảo MSBuild tìm thấy KeePass.exe ở thư mục cha ngoài workspace
+        msbuild src/KeePassSorter.csproj /p:Configuration=Release /p:Platform="AnyCPU" /p:ReferencePath="$grandparent"
 
     - name: Create PLGX Package
       shell: powershell
       run: |
-        $grandparent = Resolve-Path "$env:GITHUB_WORKSPACE\..\.."
+        $grandparent = [System.IO.Path]::GetFullPath("$env:GITHUB_WORKSPACE\..\..")
         $keepassExe = "$grandparent\KeePass.exe"
         
         # Đóng gói thư mục src/ thành file .plgx bằng KeePass.exe

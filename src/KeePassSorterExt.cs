@@ -59,11 +59,16 @@ namespace KeePassSorter
                     SortingEngine engine = new SortingEngine();
                     int count = engine.SortGroup(group, opts);
 
-                    // Cập nhật UI của KeePass (bUpdateEntryList = true, bSetModified = true)
-                    m_host.MainWindow.UpdateUI(false, null, false, null, true, null, true);
+                    if (count > 0)
+                    {
+                        m_host.MainWindow.UpdateUI(false, null, false, null, true, null, true);
+                    }
 
-                    MessageBox.Show(string.Format("Đã sắp xếp thành công {0} mục dữ liệu!", count), 
-                        "KeePass Sorter", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    string message = (count > 0) ?
+                        string.Format("Đã sắp xếp thành công {0} mục dữ liệu!", count) :
+                        "Thứ tự hiện tại đã đúng, không có mục nào cần thay đổi.";
+
+                    MessageBox.Show(message, "KeePass Sorter", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 }
             }
         }

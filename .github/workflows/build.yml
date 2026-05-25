@@ -29,7 +29,11 @@ jobs:
         Write-Host "Downloading KeePass to: $grandparent"
         
         # Tải KeePass Portable từ link chính thức của SourceForge (sử dụng curl -L để tự động chuyển hướng)
-        curl.exe -L -o "$grandparent\KeePass.zip" "https://sourceforge.net/projects/keepass/files/KeePass%202.x/2.57/KeePass-2.57.zip/download"
+        curl.exe -L -o "$grandparent\KeePass.zip" "https://sourceforge.net/projects/keepass/files/KeePass%202.x/2.61.1/KeePass-2.61.1.zip/download"
+        $header = [System.IO.File]::ReadAllBytes("$grandparent\KeePass.zip")[0..1]
+        if (($header[0] -ne 0x50) -or ($header[1] -ne 0x4B)) {
+            throw "KeePass download did not return a zip file."
+        }
         
         # Giải nén
         Expand-Archive -Path "$grandparent\KeePass.zip" -DestinationPath $grandparent -Force
@@ -40,6 +44,23 @@ jobs:
         } else {
             throw "Failed to extract KeePass.exe!"
         }
+
+    - name: Run SortingEngine Tests
+      shell: powershell
+      run: |
+        $grandparent = [System.IO.Path]::GetFullPath("$env:GITHUB_WORKSPACE\..\..")
+        $testExe = "$grandparent\KeePassSorter.Tests.exe"
+
+        & "C:\Windows\Microsoft.NET\Framework64\v4.0.30319\csc.exe" `
+          /nologo `
+          /target:exe `
+          /out:$testExe `
+          /reference:"$grandparent\KeePass.exe" `
+          /reference:"C:\Windows\Microsoft.NET\Framework64\v4.0.30319\System.dll" `
+          "$env:GITHUB_WORKSPACE\src\SortingEngine.cs" `
+          "$env:GITHUB_WORKSPACE\tests\SortingEngineBehaviorTests.cs"
+
+        & $testExe
 
     - name: Build DLL Plugin
       shell: powershell
@@ -86,7 +107,7 @@ jobs:
         tag_name: ${{ startsWith(github.ref, 'refs/tags/v') && github.ref_name || 'latest' }}
         name: ${{ startsWith(github.ref, 'refs/tags/v') && github.ref_name || 'Latest Build' }}
         draft: false
-        prerelease: ${{ !startsWith(github.ref, 'refs/tags/v') }}
+        prerelease: false
         files: |
           bin/Release/KeePassSorter.dll
           KeePassSorter.plgx

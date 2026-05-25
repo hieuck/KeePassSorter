@@ -36,7 +36,7 @@ namespace KeePassSorter
     public class SortingEngine
     {
         /// <summary>
-        /// Sắp xếp entries trong một group. Trả về tổng số entries đã sắp xếp.
+        /// Sắp xếp entries trong một group. Trả về số entries bị đổi vị trí.
         /// </summary>
         public int SortGroup(PwGroup group, SortingOptions opts)
         {
@@ -58,33 +58,42 @@ namespace KeePassSorter
         private int SortEntriesInGroup(PwGroup group, SortingOptions opts)
         {
             uint entryCount = group.Entries.UCount;
-            if (entryCount < 2) return (int)entryCount;
+            if (entryCount < 2) return 0;
 
-            // Lấy tất cả entries ra list
-            List<PwEntry> list = new List<PwEntry>();
-            foreach (PwEntry pe in group.Entries)
+            List<EntrySortItem> items = new List<EntrySortItem>();
+            uint index = 0;
+            foreach (PwEntry entry in group.Entries)
             {
-                list.Add(pe);
+                items.Add(new EntrySortItem(entry, index));
+                ++index;
             }
 
-            // Sắp xếp
-            list.Sort(delegate(PwEntry a, PwEntry b)
+            items.Sort(delegate(EntrySortItem a, EntrySortItem b)
             {
-                return CompareEntries(a, b, opts);
+                int result = CompareEntries(a.Entry, b.Entry, opts);
+                if (result != 0) return result;
+                return a.OriginalIndex.CompareTo(b.OriginalIndex);
             });
 
-            // Xóa entries cũ và thêm lại theo thứ tự mới
+            int changed = 0;
+            for (int i = 0; i < items.Count; ++i)
+            {
+                if (items[i].OriginalIndex != i) ++changed;
+            }
+
+            if (changed == 0) return 0;
+
             while (group.Entries.UCount > 0)
             {
                 group.Entries.Remove(group.Entries.GetAt(0));
             }
 
-            foreach (PwEntry pe in list)
+            foreach (EntrySortItem item in items)
             {
-                group.AddEntry(pe, false);
+                group.AddEntry(item.Entry, false);
             }
 
-            return list.Count;
+            return changed;
         }
 
         private int CompareEntries(PwEntry a, PwEntry b, SortingOptions opts)
@@ -210,6 +219,18 @@ namespace KeePassSorter
                     return entry.Strings.ReadSafe(PwDefs.NotesField);
                 default:
                     return entry.Strings.ReadSafe(PwDefs.TitleField);
+            }
+        }
+
+        private sealed class EntrySortItem
+        {
+            public readonly PwEntry Entry;
+            public readonly uint OriginalIndex;
+
+            public EntrySortItem(PwEntry entry, uint originalIndex)
+            {
+                Entry = entry;
+                OriginalIndex = originalIndex;
             }
         }
     }

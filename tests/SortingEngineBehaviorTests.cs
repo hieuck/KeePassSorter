@@ -11,6 +11,9 @@ namespace KeePassSorter.Tests
             AlreadySortedGroupReportsNoChanges();
             UnsortedGroupReportsChangesAndReordersEntries();
             NaturalSortPlacesPlainEmailBeforeNumberedVariants();
+            UpdateCheckerDetectsNewerSemanticVersions();
+            UpdateCheckerIgnoresSameOrInvalidVersions();
+            UpdateCheckerSelectsNewestSemanticTag();
             return 0;
         }
 
@@ -51,6 +54,24 @@ namespace KeePassSorter.Tests
                 "user.photos@example.com",
                 "user.photos1@example.com",
                 "user.photos2@example.com");
+        }
+
+        private static void UpdateCheckerDetectsNewerSemanticVersions()
+        {
+            AssertEqual(true, UpdateChecker.IsNewerVersion("1.0.1", "v1.0.2"), "patch update should be detected");
+            AssertEqual(true, UpdateChecker.IsNewerVersion("1.0.1", "v1.1.0"), "minor update should be detected");
+        }
+
+        private static void UpdateCheckerIgnoresSameOrInvalidVersions()
+        {
+            AssertEqual(false, UpdateChecker.IsNewerVersion("1.0.1", "1.0.1"), "same version should not be detected as update");
+            AssertEqual(false, UpdateChecker.IsNewerVersion("1.0.1", "latest"), "non-version tag should not be detected as update");
+        }
+
+        private static void UpdateCheckerSelectsNewestSemanticTag()
+        {
+            string tag = UpdateChecker.GetNewestVersionTag(new string[] { "latest", "v1.0.1", "v1.1.0", "draft" });
+            AssertEqual("v1.1.0", tag, "newest semantic release tag should be selected");
         }
 
         private static PwGroup CreateGroup(params string[] titles)

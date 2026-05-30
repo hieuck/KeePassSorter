@@ -58,6 +58,7 @@ jobs:
           /reference:"$grandparent\KeePass.exe" `
           /reference:"C:\Windows\Microsoft.NET\Framework64\v4.0.30319\System.dll" `
           "$env:GITHUB_WORKSPACE\src\SortingEngine.cs" `
+          "$env:GITHUB_WORKSPACE\src\UpdateChecker.cs" `
           "$env:GITHUB_WORKSPACE\tests\SortingEngineBehaviorTests.cs"
 
         & $testExe
@@ -101,11 +102,11 @@ jobs:
           KeePassSorter.plgx
 
     - name: Create GitHub Release
-      if: github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/v')
+      if: startsWith(github.ref, 'refs/tags/v')
       uses: softprops/action-gh-release@v2
       with:
-        tag_name: ${{ startsWith(github.ref, 'refs/tags/v') && github.ref_name || 'latest' }}
-        name: ${{ startsWith(github.ref, 'refs/tags/v') && github.ref_name || 'Latest Build' }}
+        tag_name: ${{ github.ref_name }}
+        name: ${{ github.ref_name }}
         draft: false
         prerelease: false
         files: |

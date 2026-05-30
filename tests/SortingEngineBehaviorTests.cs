@@ -10,6 +10,7 @@ namespace KeePassSorter.Tests
         {
             AlreadySortedGroupReportsNoChanges();
             UnsortedGroupReportsChangesAndReordersEntries();
+            NaturalSortPlacesPlainEmailBeforeNumberedVariants();
             return 0;
         }
 
@@ -33,6 +34,23 @@ namespace KeePassSorter.Tests
 
             AssertEqual(2, changed, "unsorted two-entry group should report two changed entries");
             AssertTitles(group, "A", "B");
+        }
+
+        private static void NaturalSortPlacesPlainEmailBeforeNumberedVariants()
+        {
+            PwGroup group = CreateGroup(
+                "user.photos1@example.com",
+                "user.photos2@example.com",
+                "user.photos@example.com");
+            SortingEngine engine = new SortingEngine();
+
+            engine.SortGroup(group, new SortingOptions { Criteria = SortCriteria.Title, Ascending = true, Recursive = false });
+
+            AssertTitles(
+                group,
+                "user.photos@example.com",
+                "user.photos1@example.com",
+                "user.photos2@example.com");
         }
 
         private static PwGroup CreateGroup(params string[] titles)

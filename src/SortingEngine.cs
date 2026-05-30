@@ -162,6 +162,14 @@ namespace KeePassSorter
                     int cmpLen = numX.Length.CompareTo(numY.Length);
                     if (cmpLen != 0) return cmpLen;
                 }
+                else if (char.IsDigit(x[ix]) && IsNaturalSuffixBoundary(y[iy]))
+                {
+                    return 1;
+                }
+                else if (IsNaturalSuffixBoundary(x[ix]) && char.IsDigit(y[iy]))
+                {
+                    return -1;
+                }
                 else
                 {
                     // So sánh các ký tự không phải số theo cấu hình
@@ -197,6 +205,11 @@ namespace KeePassSorter
             }
 
             return x.Length.CompareTo(y.Length);
+        }
+
+        private static bool IsNaturalSuffixBoundary(char c)
+        {
+            return !char.IsLetterOrDigit(c);
         }
 
         private string GetValue(PwEntry entry, SortCriteria criteria)

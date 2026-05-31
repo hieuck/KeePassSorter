@@ -68,11 +68,7 @@ jobs:
       run: |
         $grandparent = [System.IO.Path]::GetFullPath("$env:GITHUB_WORKSPACE\..\..")
         # Ghi đè ReferencePath để đảm bảo MSBuild tìm thấy KeePass.exe ở thư mục cha ngoài workspace
-        msbuild src/KeePassSorter.csproj `
-          /p:Configuration=Release `
-          /p:Platform="AnyCPU" `
-          /p:ReferencePath="$grandparent" `
-          /p:OutputPath="$env:GITHUB_WORKSPACE\bin\Release\"
+        msbuild src/KeePassSorter.csproj /p:Configuration=Release /p:Platform="AnyCPU" /p:ReferencePath="$grandparent"
 
     - name: Create PLGX Package
       shell: powershell

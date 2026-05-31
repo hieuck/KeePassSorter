@@ -11,7 +11,9 @@
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <Optimize>true</Optimize>
-    <OutputPath>..\bin\Release\</OutputPath>
+    <OutputPath>..\..\..\KeePassSorterBuild\Release\</OutputPath>
+    <BaseIntermediateOutputPath>..\..\..\KeePassSorterBuild\obj\</BaseIntermediateOutputPath>
+    <IntermediateOutputPath>..\..\..\KeePassSorterBuild\obj\Release\</IntermediateOutputPath>
     <PlatformTarget>AnyCPU</PlatformTarget>
   </PropertyGroup>
   <ItemGroup>

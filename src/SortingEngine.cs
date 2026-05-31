@@ -170,6 +170,14 @@ namespace KeePassSorter
                 {
                     return -1;
                 }
+                else if (x[ix] == '@' && IsEmailAliasBoundary(y[iy]))
+                {
+                    return -1;
+                }
+                else if (IsEmailAliasBoundary(x[ix]) && y[iy] == '@')
+                {
+                    return 1;
+                }
                 else
                 {
                     // So sánh các ký tự không phải số theo cấu hình
@@ -210,6 +218,11 @@ namespace KeePassSorter
         private static bool IsNaturalSuffixBoundary(char c)
         {
             return !char.IsLetterOrDigit(c);
+        }
+
+        private static bool IsEmailAliasBoundary(char c)
+        {
+            return c == '.' || c == '_' || c == '-' || c == '+';
         }
 
         private string GetValue(PwEntry entry, SortCriteria criteria)

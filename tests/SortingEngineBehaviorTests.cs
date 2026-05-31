@@ -11,6 +11,7 @@ namespace KeePassSorter.Tests
             AlreadySortedGroupReportsNoChanges();
             UnsortedGroupReportsChangesAndReordersEntries();
             NaturalSortPlacesPlainEmailBeforeNumberedVariants();
+            NaturalSortPlacesBaseEmailBeforeDottedAliases();
             UpdateCheckerDetectsNewerSemanticVersions();
             UpdateCheckerIgnoresSameOrInvalidVersions();
             UpdateCheckerSelectsNewestSemanticTag();
@@ -54,6 +55,27 @@ namespace KeePassSorter.Tests
                 "user.photos@example.com",
                 "user.photos1@example.com",
                 "user.photos2@example.com");
+        }
+
+        private static void NaturalSortPlacesBaseEmailBeforeDottedAliases()
+        {
+            PwGroup group = CreateGroup(
+                "account.photos@example.com",
+                "account.photos2@example.com",
+                "account.photos3@example.com",
+                "account.photos4@example.com",
+                "account@example.com");
+            SortingEngine engine = new SortingEngine();
+
+            engine.SortGroup(group, new SortingOptions { Criteria = SortCriteria.Title, Ascending = true, Recursive = false });
+
+            AssertTitles(
+                group,
+                "account@example.com",
+                "account.photos@example.com",
+                "account.photos2@example.com",
+                "account.photos3@example.com",
+                "account.photos4@example.com");
         }
 
         private static void UpdateCheckerDetectsNewerSemanticVersions()

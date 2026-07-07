@@ -27,6 +27,7 @@ namespace KeePassSorter.Tests
             SortByModificationTimeOrdersOldestFirst();
             CaseSensitiveSortOrdersUppercaseBeforeLowercase();
             VietnameseCaseSensitiveSortPreservesVietnameseOrder();
+            SortGroupWithNullOptionsReturnsZero();
             return 0;
         }
 
@@ -246,6 +247,17 @@ namespace KeePassSorter.Tests
             new SortingEngine().SortGroup(group, new SortingOptions { Criteria = SortCriteria.Title, Ascending = true, Recursive = false, UseVietnamese = true, CaseSensitive = true });
 
             AssertTitles(group, "A", "Â", "B");
+        }
+
+        private static void SortGroupWithNullOptionsReturnsZero()
+        {
+            PwGroup group = CreateGroup("B", "A");
+            SortingEngine engine = new SortingEngine();
+
+            int changed = engine.SortGroup(group, null);
+
+            AssertEqual(0, changed, "sorting with null options should report no changes");
+            AssertTitles(group, "B", "A");
         }
 
         private static PwGroup CreateGroup(params string[] titles)

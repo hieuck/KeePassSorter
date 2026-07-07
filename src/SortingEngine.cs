@@ -40,7 +40,7 @@ namespace KeePassSorter
         /// </summary>
         public int SortGroup(PwGroup group, SortingOptions opts)
         {
-            if (group == null) return 0;
+            if (group == null || opts == null) return 0;
 
             int count = SortEntriesInGroup(group, opts);
 

@@ -12,6 +12,7 @@ namespace KeePassSorter.Tests
             UnsortedGroupReportsChangesAndReordersEntries();
             NaturalSortPlacesPlainEmailBeforeNumberedVariants();
             NaturalSortPlacesBaseEmailBeforeDottedAliases();
+            VietnameseSortOrdersDiacriticsCorrectly();
             UpdateCheckerDetectsNewerSemanticVersions();
             UpdateCheckerIgnoresSameOrInvalidVersions();
             UpdateCheckerSelectsNewestSemanticTag();
@@ -76,6 +77,16 @@ namespace KeePassSorter.Tests
                 "account.photos2@example.com",
                 "account.photos3@example.com",
                 "account.photos4@example.com");
+        }
+
+        private static void VietnameseSortOrdersDiacriticsCorrectly()
+        {
+            PwGroup group = CreateGroup("đ", "a", "ă", "â", "b");
+            SortingEngine engine = new SortingEngine();
+
+            engine.SortGroup(group, new SortingOptions { Criteria = SortCriteria.Title, Ascending = true, Recursive = false, UseVietnamese = true });
+
+            AssertTitles(group, "a", "ă", "â", "b", "đ");
         }
 
         private static void UpdateCheckerDetectsNewerSemanticVersions()

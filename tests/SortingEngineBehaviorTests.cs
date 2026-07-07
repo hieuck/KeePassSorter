@@ -28,6 +28,8 @@ namespace KeePassSorter.Tests
             CaseSensitiveSortOrdersUppercaseBeforeLowercase();
             VietnameseCaseSensitiveSortPreservesVietnameseOrder();
             SortGroupWithNullOptionsReturnsZero();
+            SortingDialogStateRemembersLastUsedCriteria();
+            SortingDialogStateReturnsDefaultsWhenNothingSaved();
             return 0;
         }
 
@@ -258,6 +260,35 @@ namespace KeePassSorter.Tests
 
             AssertEqual(0, changed, "sorting with null options should report no changes");
             AssertTitles(group, "B", "A");
+        }
+
+        private static void SortingDialogStateRemembersLastUsedCriteria()
+        {
+            SortingDialogOptionsState.Reset();
+
+            SortingOptions firstUse = new SortingOptions { Criteria = SortCriteria.UserName, Ascending = false, Recursive = false, CaseSensitive = true, UseVietnamese = true };
+            SortingDialogOptionsState.SaveOptions(firstUse);
+
+            SortingOptions restored = SortingDialogOptionsState.GetInitialOptions();
+
+            AssertEqual(SortCriteria.UserName, restored.Criteria, "dialog state should remember last used criteria");
+            AssertEqual(false, restored.Ascending, "dialog state should remember last used ascending flag");
+            AssertEqual(false, restored.Recursive, "dialog state should remember last used recursive flag");
+            AssertEqual(true, restored.CaseSensitive, "dialog state should remember last used case sensitive flag");
+            AssertEqual(true, restored.UseVietnamese, "dialog state should remember last used vietnamese flag");
+        }
+
+        private static void SortingDialogStateReturnsDefaultsWhenNothingSaved()
+        {
+            SortingDialogOptionsState.Reset();
+
+            SortingOptions restored = SortingDialogOptionsState.GetInitialOptions();
+
+            AssertEqual(SortCriteria.Title, restored.Criteria, "dialog state should default to Title criteria");
+            AssertEqual(true, restored.Ascending, "dialog state should default to ascending");
+            AssertEqual(true, restored.Recursive, "dialog state should default to recursive");
+            AssertEqual(false, restored.CaseSensitive, "dialog state should default to case insensitive");
+            AssertEqual(false, restored.UseVietnamese, "dialog state should default to non-vietnamese");
         }
 
         private static PwGroup CreateGroup(params string[] titles)

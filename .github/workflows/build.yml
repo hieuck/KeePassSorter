@@ -59,6 +59,7 @@ jobs:
           /reference:"C:\Windows\Microsoft.NET\Framework64\v4.0.30319\System.dll" `
           "$env:GITHUB_WORKSPACE\src\SortingEngine.cs" `
           "$env:GITHUB_WORKSPACE\src\UpdateChecker.cs" `
+          "$env:GITHUB_WORKSPACE\src\SortingDialogOptionsState.cs" `
           "$env:GITHUB_WORKSPACE\tests\SortingEngineBehaviorTests.cs"
 
         & $testExe

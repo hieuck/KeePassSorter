@@ -18,6 +18,7 @@ namespace KeePassSorter.Tests
             UpdateCheckerDetectsNewerSemanticVersions();
             UpdateCheckerIgnoresSameOrInvalidVersions();
             UpdateCheckerSelectsNewestSemanticTag();
+            UpdateCheckerSelectsNewestTagWithoutRevisionZeroBias();
             UpdateCheckerTreatsRevisionZeroAsSameVersion();
             SortByUsernameOrdersByUserNameField();
             SortByUrlOrdersByUrlField();
@@ -146,6 +147,12 @@ namespace KeePassSorter.Tests
         {
             string tag = UpdateChecker.GetNewestVersionTag(new string[] { "latest", "v1.0.1", "v1.1.0", "draft" });
             AssertEqual("v1.1.0", tag, "newest semantic release tag should be selected");
+        }
+
+        private static void UpdateCheckerSelectsNewestTagWithoutRevisionZeroBias()
+        {
+            string tag = UpdateChecker.GetNewestVersionTag(new string[] { "v1.0.1", "v1.0.1.0" });
+            AssertEqual("v1.0.1", tag, "revision zero should not bias newest tag selection");
         }
 
         private static void UpdateCheckerTreatsRevisionZeroAsSameVersion()

@@ -13,6 +13,7 @@ namespace KeePassSorter.Tests
             NaturalSortPlacesPlainEmailBeforeNumberedVariants();
             NaturalSortPlacesBaseEmailBeforeDottedAliases();
             VietnameseSortOrdersDiacriticsCorrectly();
+            DescendingOrderReversesSort();
             UpdateCheckerDetectsNewerSemanticVersions();
             UpdateCheckerIgnoresSameOrInvalidVersions();
             UpdateCheckerSelectsNewestSemanticTag();
@@ -87,6 +88,16 @@ namespace KeePassSorter.Tests
             engine.SortGroup(group, new SortingOptions { Criteria = SortCriteria.Title, Ascending = true, Recursive = false, UseVietnamese = true });
 
             AssertTitles(group, "a", "ă", "â", "b", "đ");
+        }
+
+        private static void DescendingOrderReversesSort()
+        {
+            PwGroup group = CreateGroup("A", "C", "B");
+            SortingEngine engine = new SortingEngine();
+
+            engine.SortGroup(group, new SortingOptions { Criteria = SortCriteria.Title, Ascending = false, Recursive = false });
+
+            AssertTitles(group, "C", "B", "A");
         }
 
         private static void UpdateCheckerDetectsNewerSemanticVersions()

@@ -85,7 +85,7 @@ namespace KeePassSorter
                 Version version;
                 if (!TryParseVersion(tag, out version)) continue;
 
-                if (newestVersion == null || version.CompareTo(newestVersion) > 0)
+                if (newestVersion == null || CompareNormalized(version, newestVersion) > 0)
                 {
                     newestVersion = version;
                     newestTag = tag;

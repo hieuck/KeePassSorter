@@ -19,6 +19,12 @@ namespace KeePassSorter.Tests
             UpdateCheckerIgnoresSameOrInvalidVersions();
             UpdateCheckerSelectsNewestSemanticTag();
             UpdateCheckerTreatsRevisionZeroAsSameVersion();
+            SortByUsernameOrdersByUserNameField();
+            SortByUrlOrdersByUrlField();
+            SortByNotesOrdersByNotesField();
+            SortByCreationTimeOrdersOldestFirst();
+            SortByModificationTimeOrdersOldestFirst();
+            CaseSensitiveSortOrdersUppercaseBeforeLowercase();
             return 0;
         }
 
@@ -147,6 +153,84 @@ namespace KeePassSorter.Tests
             AssertEqual(false, UpdateChecker.IsNewerVersion("1.0.1.0", "1.0.1"), "missing revision should not be treated as older");
         }
 
+        private static void SortByUsernameOrdersByUserNameField()
+        {
+            PwGroup group = new PwGroup(true, true);
+            AddEntry(group, "T", "B", "url", "note");
+            AddEntry(group, "T", "A", "url", "note");
+
+            new SortingEngine().SortGroup(group, new SortingOptions { Criteria = SortCriteria.UserName, Ascending = true, Recursive = false });
+
+            AssertUsernames(group, "A", "B");
+        }
+
+        private static void SortByUrlOrdersByUrlField()
+        {
+            PwGroup group = new PwGroup(true, true);
+            AddEntry(group, "T", "user", "b.com", "note");
+            AddEntry(group, "T", "user", "a.com", "note");
+
+            new SortingEngine().SortGroup(group, new SortingOptions { Criteria = SortCriteria.Url, Ascending = true, Recursive = false });
+
+            AssertUrls(group, "a.com", "b.com");
+        }
+
+        private static void SortByNotesOrdersByNotesField()
+        {
+            PwGroup group = new PwGroup(true, true);
+            AddEntry(group, "T", "user", "url", "B");
+            AddEntry(group, "T", "user", "url", "A");
+
+            new SortingEngine().SortGroup(group, new SortingOptions { Criteria = SortCriteria.Notes, Ascending = true, Recursive = false });
+
+            AssertNotes(group, "A", "B");
+        }
+
+        private static void SortByCreationTimeOrdersOldestFirst()
+        {
+            PwGroup group = new PwGroup(true, true);
+            PwEntry older = new PwEntry(true, true);
+            older.CreationTime = new DateTime(2024, 1, 1);
+            older.Strings.Set(PwDefs.TitleField, new ProtectedString(false, "Second"));
+            group.AddEntry(older, false);
+
+            PwEntry newer = new PwEntry(true, true);
+            newer.CreationTime = new DateTime(2024, 1, 2);
+            newer.Strings.Set(PwDefs.TitleField, new ProtectedString(false, "First"));
+            group.AddEntry(newer, false);
+
+            new SortingEngine().SortGroup(group, new SortingOptions { Criteria = SortCriteria.CreatedTime, Ascending = true, Recursive = false });
+
+            AssertTitles(group, "Second", "First");
+        }
+
+        private static void SortByModificationTimeOrdersOldestFirst()
+        {
+            PwGroup group = new PwGroup(true, true);
+            PwEntry older = new PwEntry(true, true);
+            older.LastModificationTime = new DateTime(2024, 1, 1);
+            older.Strings.Set(PwDefs.TitleField, new ProtectedString(false, "Second"));
+            group.AddEntry(older, false);
+
+            PwEntry newer = new PwEntry(true, true);
+            newer.LastModificationTime = new DateTime(2024, 1, 2);
+            newer.Strings.Set(PwDefs.TitleField, new ProtectedString(false, "First"));
+            group.AddEntry(newer, false);
+
+            new SortingEngine().SortGroup(group, new SortingOptions { Criteria = SortCriteria.ModifiedTime, Ascending = true, Recursive = false });
+
+            AssertTitles(group, "Second", "First");
+        }
+
+        private static void CaseSensitiveSortOrdersUppercaseBeforeLowercase()
+        {
+            PwGroup group = CreateGroup("a", "B");
+
+            new SortingEngine().SortGroup(group, new SortingOptions { Criteria = SortCriteria.Title, Ascending = true, Recursive = false, CaseSensitive = true });
+
+            AssertTitles(group, "B", "a");
+        }
+
         private static PwGroup CreateGroup(params string[] titles)
         {
             PwGroup group = new PwGroup(true, true);
@@ -159,13 +243,43 @@ namespace KeePassSorter.Tests
             return group;
         }
 
+        private static void AddEntry(PwGroup group, string title, string username, string url, string notes)
+        {
+            PwEntry entry = new PwEntry(true, true);
+            entry.Strings.Set(PwDefs.TitleField, new ProtectedString(false, title));
+            entry.Strings.Set(PwDefs.UserNameField, new ProtectedString(false, username));
+            entry.Strings.Set(PwDefs.UrlField, new ProtectedString(false, url));
+            entry.Strings.Set(PwDefs.NotesField, new ProtectedString(false, notes));
+            group.AddEntry(entry, false);
+        }
+
         private static void AssertTitles(PwGroup group, params string[] expected)
+        {
+            AssertField(group, expected, PwDefs.TitleField, "entry title mismatch at index ");
+        }
+
+        private static void AssertUsernames(PwGroup group, params string[] expected)
+        {
+            AssertField(group, expected, PwDefs.UserNameField, "entry username mismatch at index ");
+        }
+
+        private static void AssertUrls(PwGroup group, params string[] expected)
+        {
+            AssertField(group, expected, PwDefs.UrlField, "entry url mismatch at index ");
+        }
+
+        private static void AssertNotes(PwGroup group, params string[] expected)
+        {
+            AssertField(group, expected, PwDefs.NotesField, "entry notes mismatch at index ");
+        }
+
+        private static void AssertField(PwGroup group, string[] expected, string fieldId, string messagePrefix)
         {
             AssertEqual(expected.Length, (int)group.Entries.UCount, "entry count mismatch");
             for (uint i = 0; i < expected.Length; ++i)
             {
-                string title = group.Entries.GetAt(i).Strings.ReadSafe(PwDefs.TitleField);
-                AssertEqual(expected[i], title, "entry title mismatch at index " + i);
+                string value = group.Entries.GetAt(i).Strings.ReadSafe(fieldId);
+                AssertEqual(expected[i], value, messagePrefix + i);
             }
         }
 

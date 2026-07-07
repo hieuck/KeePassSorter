@@ -40,7 +40,21 @@ namespace KeePassSorter
             Version candidate;
             if (!TryParseVersion(currentVersion, out current)) return false;
             if (!TryParseVersion(candidateVersion, out candidate)) return false;
-            return candidate.CompareTo(current) > 0;
+            return CompareNormalized(candidate, current) > 0;
+        }
+
+        private static int CompareNormalized(Version a, Version b)
+        {
+            int[] componentsA = new[] { a.Major, a.Minor, a.Build, a.Revision };
+            int[] componentsB = new[] { b.Major, b.Minor, b.Build, b.Revision };
+            for (int i = 0; i < 4; i++)
+            {
+                int ca = componentsA[i] < 0 ? 0 : componentsA[i];
+                int cb = componentsB[i] < 0 ? 0 : componentsB[i];
+                int cmp = ca.CompareTo(cb);
+                if (cmp != 0) return cmp;
+            }
+            return 0;
         }
 
         public static UpdateInfo CheckLatest()

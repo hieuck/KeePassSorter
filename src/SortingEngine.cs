@@ -185,21 +185,21 @@ namespace KeePassSorter
                     string cy = y[iy].ToString();
                     int cmpChar;
 
-                    if (opts.CaseSensitive)
-                    {
-                        cmpChar = string.Compare(cx, cy, StringComparison.Ordinal);
-                    }
-                    else if (opts.UseVietnamese)
+                    if (opts.UseVietnamese)
                     {
                         try
                         {
                             CultureInfo ci = new CultureInfo("vi-VN");
-                            cmpChar = string.Compare(cx, cy, true, ci);
+                            cmpChar = string.Compare(cx, cy, !opts.CaseSensitive, ci);
                         }
                         catch
                         {
-                            cmpChar = string.Compare(cx, cy, StringComparison.OrdinalIgnoreCase);
+                            cmpChar = string.Compare(cx, cy, opts.CaseSensitive ? StringComparison.Ordinal : StringComparison.OrdinalIgnoreCase);
                         }
+                    }
+                    else if (opts.CaseSensitive)
+                    {
+                        cmpChar = string.Compare(cx, cy, StringComparison.Ordinal);
                     }
                     else
                     {

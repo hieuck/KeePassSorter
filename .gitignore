@@ -15,3 +15,5 @@ obj/
 # Mono / OS files
 .DS_Store
 Thumbs.db
+/lib
+/.kimchi

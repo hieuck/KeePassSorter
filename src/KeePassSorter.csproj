@@ -19,7 +19,7 @@
     <Reference Include="System.Drawing" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="KeePass">
-      <HintPath>..\..\..\KeePass.exe</HintPath>
+      <HintPath>..\..\lib\KeePass.exe</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>

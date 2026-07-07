@@ -1,5 +1,11 @@
 # Changelog
 
+## [1.1.3] - 2026-07-08
+
+### Added
+- SortingDialog now remembers the last used sort options (criteria, order, recursive, case-sensitive, Vietnamese) across invocations.
+- Tests covering dialog option state restore and default fallback.
+
 ## [1.1.2] - 2026-07-08
 
 ### Fixed

@@ -18,6 +18,7 @@ namespace KeePassSorter.Tests
             UpdateCheckerDetectsNewerSemanticVersions();
             UpdateCheckerIgnoresSameOrInvalidVersions();
             UpdateCheckerSelectsNewestSemanticTag();
+            UpdateCheckerTreatsRevisionZeroAsSameVersion();
             return 0;
         }
 
@@ -138,6 +139,12 @@ namespace KeePassSorter.Tests
         {
             string tag = UpdateChecker.GetNewestVersionTag(new string[] { "latest", "v1.0.1", "v1.1.0", "draft" });
             AssertEqual("v1.1.0", tag, "newest semantic release tag should be selected");
+        }
+
+        private static void UpdateCheckerTreatsRevisionZeroAsSameVersion()
+        {
+            AssertEqual(false, UpdateChecker.IsNewerVersion("1.0.1", "1.0.1.0"), "revision zero should not be treated as newer");
+            AssertEqual(false, UpdateChecker.IsNewerVersion("1.0.1.0", "1.0.1"), "missing revision should not be treated as older");
         }
 
         private static PwGroup CreateGroup(params string[] titles)

@@ -1,0 +1,280 @@
+# Instincts generated from https://github.com/hieuck/KeePassSorter
+# Generated: 2026-07-07T17:48:41.047Z
+# Version: 2.0
+# NOTE: This file supplements (does not replace) any existing curated instincts.
+# High-confidence manually curated instincts should be preserved alongside these.
+
+---
+id: KeePassSorter-commit-conventional
+trigger: "when writing a commit message"
+confidence: 0.85
+domain: git
+source: repo-analysis
+source_repo: https://github.com/hieuck/KeePassSorter
+---
+
+# KeePassSorter Commit Conventional
+
+## Action
+
+Use conventional commit format with prefixes: feat
+
+## Evidence
+
+- 1 commits analyzed
+- Detected conventional commit pattern
+- Examples: feat: remember last used sort options in SortingDialog
+
+---
+id: KeePassSorter-commit-length
+trigger: "when writing a commit message"
+confidence: 0.6
+domain: git
+source: repo-analysis
+source_repo: https://github.com/hieuck/KeePassSorter
+---
+
+# KeePassSorter Commit Length
+
+## Action
+
+Write moderate-length commit messages (~54 characters)
+
+## Evidence
+
+- Average commit message length: 54 chars
+- Based on 1 commits
+
+---
+id: KeePassSorter-naming-files
+trigger: "when creating a new file"
+confidence: 0.8
+domain: code-style
+source: repo-analysis
+source_repo: https://github.com/hieuck/KeePassSorter
+---
+
+# KeePassSorter Naming Files
+
+## Action
+
+Use PascalCase naming convention
+
+## Evidence
+
+- Analyzed file naming patterns in repository
+- Dominant pattern: PascalCase
+
+---
+id: KeePassSorter-import-relative
+trigger: "when importing modules"
+confidence: 0.75
+domain: code-style
+source: repo-analysis
+source_repo: https://github.com/hieuck/KeePassSorter
+---
+
+# KeePassSorter Import Relative
+
+## Action
+
+Use relative imports for project files
+
+## Evidence
+
+- Import analysis shows relative import pattern
+- Example: import { x } from '../lib/x'
+
+---
+id: KeePassSorter-export-style
+trigger: "when exporting from a module"
+confidence: 0.7
+domain: code-style
+source: repo-analysis
+source_repo: https://github.com/hieuck/KeePassSorter
+---
+
+# KeePassSorter Export Style
+
+## Action
+
+Prefer named exports
+
+## Evidence
+
+- Export pattern analysis
+- Dominant style: named
+
+---
+id: KeePassSorter-test-separate
+trigger: "when writing tests"
+confidence: 0.8
+domain: testing
+source: repo-analysis
+source_repo: https://github.com/hieuck/KeePassSorter
+---
+
+# KeePassSorter Test Separate
+
+## Action
+
+Place tests in the tests/ or __tests__/ directory, mirroring src structure
+
+## Evidence
+
+- Separate test directory pattern detected
+- Tests live in dedicated test folders
+
+---
+id: keepasssorter-instinct-class-naming
+trigger: "When creating a new C# class file"
+confidence: 0.9
+domain: code-style
+source: repo-analysis
+source_repo: hieuck/KeePassSorter
+---
+
+# Keepasssorter Instinct Class Naming
+
+## Action
+
+Name the file and class using PascalCase
+
+## Evidence
+
+- Pattern in files: src/KeePassSorter.csproj, file naming convention
+
+---
+id: keepasssorter-instinct-function-naming
+trigger: "When defining a function or method"
+confidence: 0.8
+domain: code-style
+source: repo-analysis
+source_repo: hieuck/KeePassSorter
+---
+
+# Keepasssorter Instinct Function Naming
+
+## Action
+
+Use camelCase for function names
+
+## Evidence
+
+- Pattern in code: function naming convention in C# files
+
+---
+id: keepasssorter-instinct-constant-naming
+trigger: "When declaring a constant"
+confidence: 0.8
+domain: code-style
+source: repo-analysis
+source_repo: hieuck/KeePassSorter
+---
+
+# Keepasssorter Instinct Constant Naming
+
+## Action
+
+Use SCREAMING_SNAKE_CASE for constant names
+
+## Evidence
+
+- Pattern in code: constants naming convention
+
+---
+id: keepasssorter-instinct-import-style
+trigger: "When importing modules or namespaces"
+confidence: 0.7
+domain: code-style
+source: repo-analysis
+source_repo: hieuck/KeePassSorter
+---
+
+# Keepasssorter Instinct Import Style
+
+## Action
+
+Use relative imports
+
+## Evidence
+
+- Pattern in code: import style
+
+---
+id: keepasssorter-instinct-export-style
+trigger: "When exporting classes or functions"
+confidence: 0.7
+domain: code-style
+source: repo-analysis
+source_repo: hieuck/KeePassSorter
+---
+
+# Keepasssorter Instinct Export Style
+
+## Action
+
+Use named exports
+
+## Evidence
+
+- Pattern in code: export style
+
+---
+id: keepasssorter-instinct-commit-format
+trigger: "When making a git commit"
+confidence: 0.9
+domain: git
+source: repo-analysis
+source_repo: hieuck/KeePassSorter
+---
+
+# Keepasssorter Instinct Commit Format
+
+## Action
+
+Format the commit message using the conventional commit style with 'feat' prefix for new features
+
+## Evidence
+
+- Seen in commit: 'feat: remember last used sort options in SortingDialog'
+- Pattern: conventional commits with 'feat' prefix
+
+---
+id: keepasssorter-instinct-commit-length
+trigger: "When writing a commit message"
+confidence: 0.7
+domain: git
+source: repo-analysis
+source_repo: hieuck/KeePassSorter
+---
+
+# Keepasssorter Instinct Commit Length
+
+## Action
+
+Keep the commit message around 54 characters on average
+
+## Evidence
+
+- Pattern: average commit length is 54 characters
+
+---
+id: keepasssorter-instinct-test-location
+trigger: "When adding or updating tests"
+confidence: 0.9
+domain: testing
+source: repo-analysis
+source_repo: hieuck/KeePassSorter
+---
+
+# Keepasssorter Instinct Test Location
+
+## Action
+
+Place test files in the separate 'tests' folder
+
+## Evidence
+
+- Pattern in folder structure: 'tests' folder is separate
+

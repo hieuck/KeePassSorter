@@ -104,6 +104,7 @@ namespace KeePassSorter
             m_btnOk.Location = new Point(150, y);
             m_btnOk.Click += delegate(object sender, EventArgs e)
             {
+                SortingDialogOptionsState.SaveOptions(GetOptions());
                 this.DialogResult = DialogResult.OK;
                 this.Close();
             };
@@ -122,6 +123,17 @@ namespace KeePassSorter
 
             this.AcceptButton = m_btnOk;
             this.CancelButton = m_btnCancel;
+
+            ApplyOptions(SortingDialogOptionsState.GetInitialOptions());
+        }
+
+        private void ApplyOptions(SortingOptions options)
+        {
+            m_cmbCriteria.SelectedIndex = (int)options.Criteria;
+            m_cmbOrder.SelectedIndex = options.Ascending ? 0 : 1;
+            m_chkRecursive.Checked = options.Recursive;
+            m_chkCaseSensitive.Checked = options.CaseSensitive;
+            m_chkVietnamese.Checked = options.UseVietnamese;
         }
 
         public SortingOptions GetOptions()

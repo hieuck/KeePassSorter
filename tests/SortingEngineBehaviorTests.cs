@@ -14,6 +14,7 @@ namespace KeePassSorter.Tests
             NaturalSortPlacesBaseEmailBeforeDottedAliases();
             VietnameseSortOrdersDiacriticsCorrectly();
             DescendingOrderReversesSort();
+            RecursiveSortSortsChildGroups();
             UpdateCheckerDetectsNewerSemanticVersions();
             UpdateCheckerIgnoresSameOrInvalidVersions();
             UpdateCheckerSelectsNewestSemanticTag();
@@ -98,6 +99,27 @@ namespace KeePassSorter.Tests
             engine.SortGroup(group, new SortingOptions { Criteria = SortCriteria.Title, Ascending = false, Recursive = false });
 
             AssertTitles(group, "C", "B", "A");
+        }
+
+        private static void RecursiveSortSortsChildGroups()
+        {
+            PwGroup parent = new PwGroup(true, true);
+            PwGroup child = new PwGroup(true, true);
+            parent.AddGroup(child, true);
+
+            PwEntry entryB = new PwEntry(true, true);
+            entryB.Strings.Set(PwDefs.TitleField, new ProtectedString(false, "B"));
+            child.AddEntry(entryB, false);
+
+            PwEntry entryA = new PwEntry(true, true);
+            entryA.Strings.Set(PwDefs.TitleField, new ProtectedString(false, "A"));
+            child.AddEntry(entryA, false);
+
+            SortingEngine engine = new SortingEngine();
+            int changed = engine.SortGroup(parent, new SortingOptions { Criteria = SortCriteria.Title, Ascending = true, Recursive = true });
+
+            AssertEqual(2, changed, "recursive sort should report changes in child group");
+            AssertTitles(child, "A", "B");
         }
 
         private static void UpdateCheckerDetectsNewerSemanticVersions()
